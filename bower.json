@@ -1,0 +1,26 @@
+{
+  "name": "qt-quick-element",
+  "version": "0.1.0",
+  "description": "A Qt Quick Web Runtime element",
+  "main": "qt-quick.html",
+  "keywords": [
+    "Qt",
+    "Quick"
+  ],
+  "authors": [
+    "The Qt Project Authors"
+  ],
+  "license": "LGPL",
+  "homepage": "https://github.com/msorvig/qt-quick-element",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "qt-quick-runtime": "qt-quick-runtime#^0.1.0"
+  }
+}

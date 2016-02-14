@@ -1,0 +1,92 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../qt-quick-runtime/qtquickruntime.html">
+
+<dom-module id="qt-quick">
+  <template>
+
+    <style>
+      /* local DOM styles go here */
+      :host {
+        display: inline-block;
+      }
+    </style>
+
+    <!-- local DOM goes here -->
+
+    <div id="container">qt-container</div>
+
+  </template>
+
+  <script>
+
+  function onQmlStatusChange(event)
+  {
+      console.log(event.detail);
+  }
+
+  function onQmlWarning(event)
+  {
+      console.log(event.detail);
+  }
+  
+  Polymer({
+    is: 'qt-quick',
+    properties: {
+        src: {
+            type: String,
+            value: "",
+            observer: '_srcChanged'
+        },
+        resizeMode: {
+            type: String,
+            value: "resizeContentToFitView"
+        }
+    },
+    
+    _srcChanged: function(newValue, oldValue) {
+        console.log("src changed " + oldValue + " -> " + newValue);
+    },
+    
+    created: function() {
+        console.log("created");
+    },
+    ready: function() {
+        console.log("ready");
+
+        var container = this.$.container;
+
+        var config = {};
+        config.path = this.resolveUrl("../qt-quick-runtime");
+        
+        this.runtime = new QtQuickRuntime(config);
+        var element = this.runtime.createElement(container);
+        element.addEventListener("qmlloadend", onQmlStatusChange, true);
+        element.addEventListener("qmlwarnings", onQmlWarning, true);
+        this.runtime.load();
+        
+        console.log(this.src);
+        var source = ' \
+import QtQuick 2.1; \
+ \
+Rectangle { \
+    width: 620; \
+    height: 200; \
+    color: "#bebebe"; \
+} \
+';
+        this.runtime.setSource(source);
+    },
+    attached: function() {
+        console.log("attached");
+    },
+    detached: function() {
+        console.log("detached");
+    },
+  }); // Polymer
+  
+  console.log("script")
+  
+  </script>
+
+</dom-module>
+
