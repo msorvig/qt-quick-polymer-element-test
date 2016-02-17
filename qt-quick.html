@@ -3,84 +3,84 @@
 
 <dom-module id="qt-quick">
   <template>
-
     <style>
-      /* local DOM styles go here */
       :host {
         display: inline-block;
       }
     </style>
-
-    <!-- local DOM goes here -->
-
     <div id="container">qt-container</div>
-
   </template>
 
   <script>
-
-  function onQmlStatusChange(event)
-  {
-      console.log(event.detail);
-  }
-
-  function onQmlWarning(event)
-  {
-      console.log(event.detail);
-  }
   
   Polymer({
     is: 'qt-quick',
+
+    // Define public properties and attributes for the <qt-quick> tag.
     properties: {
         src: {
             type: String,
             value: "",
-            observer: '_srcChanged'
+            observer: 'onSrcChanged'
         },
         resizeMode: {
             type: String,
             value: "resizeContentToFitView"
+            // No observer: changing the resizeMode after construction is not supported.
         }
     },
-    
-    _srcChanged: function(newValue, oldValue) {
-        console.log("src changed " + oldValue + " -> " + newValue);
-    },
-    
+
     created: function() {
         console.log("created");
+
+        // Configure and create the Qt Quick Runtime object.
+        var config = {
+            // The runtime needs the relative path from the host/loading html file to its data
+            // files. First we assume that the runtime is installed next to this component
+            // (../qt-quick-runtime). Then resolveUrl from Polymer is used to make that path
+            // relative to the loading html file.
+            path: this.resolveUrl("../qt-quick-runtime"),
+            resizeMode: this.resizeMode
+        };
+        this.runtime = new QtQuickRuntime(config);
     },
+
     ready: function() {
         console.log("ready");
 
+        // Attach event listeners and tell the runtime to use the container
+        // element provided by this component.
         var container = this.$.container;
-
-        var config = {};
-        config.path = this.resolveUrl("../qt-quick-runtime");
-        
-        this.runtime = new QtQuickRuntime(config);
-        var element = this.runtime.createElement(container);
-        element.addEventListener("qmlloadend", onQmlStatusChange, true);
-        element.addEventListener("qmlwarnings", onQmlWarning, true);
-        this.runtime.load();
-        
-        console.log(this.src);
-        var source = ' \
-import QtQuick 2.1; \
- \
-Rectangle { \
-    width: 620; \
-    height: 200; \
-    color: "#bebebe"; \
-} \
-';
-        this.runtime.setSource(source);
+        container.addEventListener("qmlloadend", this.onQmlStatusChange, true);
+        container.addEventListener("qmlwarnings", this.onQmlWarning, true);
+        this.runtime.createElement(container); // ### fixup API?
     },
+
     attached: function() {
         console.log("attached");
+
+        // Start runtime download and initialization.
+        this.runtime.load();
     },
+
     detached: function() {
         console.log("detached");
+    },
+
+    onSrcChanged: function(newValue, oldValue) {
+        console.log("src changed " + oldValue + " -> " + newValue);
+
+        this.runtime.setSource(newValue);
+    },
+
+    onQmlStatusChange: function (event)
+    {
+        console.log(event.detail);
+    },
+
+    onQmlWarning: function(event)
+    {
+        console.log(event.detail);
     },
   }); // Polymer
   
